@@ -1,7 +1,7 @@
 """
 bibclean. Cleans one or more bib files to remove unused entries. Uses the output.aux result of compilation to determine citations. Outputs the same bib files with '_bibclean' appended.
 
-bibclean.py --bib main.bib other.bib --aux output.aux
+bibclean.py --bib main.bib --aux output.aux
 
 Requires bibtexparser (https://bibtexparser.readthedocs.io/en/master/tutorial.html)
 """
@@ -16,7 +16,7 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    "--bib", nargs="+", type=str, help="Bib files to clean.",
+    "--bib", type=str, help="Bib file to clean.",
 )
 parser.add_argument(
     "--aux", type=str, help="Aux files.",
@@ -40,26 +40,26 @@ def get_aux_citation_keys(args):
 def clean_bibs(args, citation_keys):
     bibparser = BibTexParser()
     bibparser.ignore_nonstandard_types = False
-    for bib_file in args.bib:
-        print(f"Now cleaning: {bib_file}")
-        with open(bib_file) as bibtex_file:
-            bibtex_str = bibtex_file.read()
 
-        bib_database = bibtexparser.loads(bibtex_str, bibparser)
-        import pdb
+    print(f"Now cleaning: {args.bib}")
+    with open(args.bib) as bibtex_file:
+        bibtex_str = bibtex_file.read()
 
-        pdb.set_trace()
-        clean_entries = [e for e in bib_database.entries if e["ID"] in citation_keys]
+    bib_database = bibtexparser.loads(bibtex_str, bibparser)
 
-        # Clean the database.
-        cleanbib_database = BibDatabase()
-        cleanbib_database.entries = clean_entries
+    clean_entries = [e for e in bib_database.entries if e["ID"] in citation_keys]
 
-        writer = BibTexWriter()
-        writer.indent = "    "  # indent entries with 4 spaces instead of one
-        cleanbib = bib_file.split(".bib")[0] + "_clean" + ".bib"
-        with open(cleanbib, "w") as cleanbib_file:
-            cleanbib_file.write(writer.write(cleanbib_database))
+    # Clean the database.
+    cleanbib_database = BibDatabase()
+    cleanbib_database.entries = clean_entries
+
+    writer = BibTexWriter()
+    writer.indent = "    "  # indent entries with 4 spaces instead of one
+    cleanbib = args.bibe.split(".bib")[0] + "_clean" + ".bib"
+    with open(cleanbib, "w") as cleanbib_file:
+        cleanbib_file.write(writer.write(cleanbib_database))
+
+    print(f"Clean output to: {cleanbib}")
 
 
 def main():
